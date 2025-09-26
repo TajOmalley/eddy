@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd pickleglass_web && npm run build",
+  "outputDirectory": "pickleglass_web/out",
+  "installCommand": "cd pickleglass_web && npm install"
+}
