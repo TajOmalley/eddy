@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { useRedirectIfNotAuth } from '@/utils/auth'
+import { useRedirectIfNotAuth } from '../../../utils/auth'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -11,7 +11,7 @@ import {
   AiMessage,
   getSessionDetails,
   deleteSession,
-} from '@/utils/api'
+} from '../../../utils/api'
 
 type ConversationItem = (Transcript & { type: 'transcript' }) | (AiMessage & { type: 'ai_message' });
 

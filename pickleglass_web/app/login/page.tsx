@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
-import { auth } from '@/utils/firebase'
+import { auth } from '../../utils/firebase'
 import { Chrome } from 'lucide-react'
 import { useState, useEffect } from 'react'
 

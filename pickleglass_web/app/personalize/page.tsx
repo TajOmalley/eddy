@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { ChevronDown, Plus, Copy } from 'lucide-react'
-import { getPresets, updatePreset, createPreset, PromptPreset } from '@/utils/api'
+import { getPresets, updatePreset, createPreset, PromptPreset } from '../../utils/api'
 
 export default function PersonalizePage() {
   const [allPresets, setAllPresets] = useState<PromptPreset[]>([]);

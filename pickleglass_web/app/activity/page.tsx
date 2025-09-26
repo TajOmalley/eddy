@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRedirectIfNotAuth } from '@/utils/auth'
+import { useRedirectIfNotAuth } from '../../utils/auth'
 import {
   UserProfile,
   Session,
   getSessions,
   deleteSession,
-} from '@/utils/api'
+} from '../../utils/api'
 
 export default function ActivityPage() {
   const userInfo = useRedirectIfNotAuth() as UserProfile | null;

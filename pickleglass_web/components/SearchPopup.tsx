@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, X } from 'lucide-react'
-import { searchConversations, Session } from '@/utils/api'
+import { searchConversations, Session } from '../utils/api'
 import { MessageSquare } from 'lucide-react'
 
 interface SearchPopupProps {

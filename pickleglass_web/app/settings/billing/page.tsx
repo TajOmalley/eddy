@@ -1,6 +1,6 @@
 'use client'
 
-import { useRedirectIfNotAuth } from '@/utils/auth'
+import { useRedirectIfNotAuth } from '../../../utils/auth'
 
 export default function BillingPage() {
   const userInfo = useRedirectIfNotAuth()

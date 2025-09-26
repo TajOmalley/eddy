@@ -5,8 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useState, createElement, useEffect, useMemo, useCallback, memo } from 'react';
 import { Search, Activity, HelpCircle, Download, ChevronDown, User, Shield, Database, CreditCard, LogOut, LucideIcon } from 'lucide-react';
-import { logout, UserProfile, checkApiKeyStatus } from '@/utils/api';
-import { useAuth } from '@/utils/auth';
+import { logout, UserProfile, checkApiKeyStatus } from '../utils/api';
+import { useAuth } from '../utils/auth';
 
 const ANIMATION_DURATION = {
     SIDEBAR: 500,

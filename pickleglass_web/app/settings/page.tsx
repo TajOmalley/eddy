@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Check, ExternalLink, Cloud, HardDrive } from 'lucide-react'
-import { useAuth } from '@/utils/auth'
+import { useAuth } from '../../utils/auth'
 import { 
   UserProfile,
   getUserProfile,
@@ -11,7 +11,7 @@ import {
   saveApiKey,
   deleteAccount,
   logout
-} from '@/utils/api'
+} from '../../utils/api'
 import { useRouter } from 'next/navigation'
 
 declare global {

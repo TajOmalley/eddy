@@ -1,7 +1,7 @@
 'use client'
 
 import { ExternalLink } from 'lucide-react'
-import { useRedirectIfNotAuth } from '@/utils/auth'
+import { useRedirectIfNotAuth } from '../../../utils/auth'
 
 export default function PrivacySettingsPage() {
   const userInfo = useRedirectIfNotAuth()
