@@ -33,13 +33,4 @@ jobs:
         # Run Electron build script from root directory
         run: npm run build
 
-      - name: 🚨 Send failure notification to Slack
-        if: failure()
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_CHANNEL: general
-          SLACK_TITLE: "🚨 Build Failed"
-          SLACK_MESSAGE: "😭 Build failed for `${{ github.repository }}` repo on main branch."
-          SLACK_COLOR: 'danger'
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
