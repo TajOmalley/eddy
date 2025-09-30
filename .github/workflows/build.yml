@@ -22,15 +22,17 @@ jobs:
       - name: 📦 Install root dependencies
         run: npm install
 
-      - name: 🌐 Install and build web (Renderer) part
-        # Move to pickleglass_web directory and run commands
-        working-directory: ./pickleglass_web
-        run: |
-          npm install
-          npm run build
-
-      - name: 🖥️ Build Electron app
-        # Run Electron build script from root directory
+      - name: 🌐 Build LearnCanvas web app
+        # Build the LearnCanvas Next.js app
         run: npm run build
+
+      - name: 🖥️ Build Electron app (if build script exists)
+        # Only run if there's an Electron build script
+        run: |
+          if [ -f "build.js" ]; then
+            node build.js
+          else
+            echo "No Electron build script found, skipping..."
+          fi
 
 
