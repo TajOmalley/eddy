@@ -7,14 +7,24 @@ module.exports = {
   ],
   theme: {
     extend: {
-      colors: {
-        primary: '#3b82f6',
-        secondary: '#64748b',
-        accent: '#06b6d4',
-        'subtle-bg': '#f8f7f4',
-        'subtle-active-bg': '#e7e5e4',
+      fontFamily: {
+        'sans': ['Inter', 'system-ui', 'sans-serif'],
+      },
+      animation: {
+        'blink': 'blink 1s infinite',
+        'type': 'type 0.5s ease-in-out',
+      },
+      keyframes: {
+        blink: {
+          '0%, 50%': { opacity: '1' },
+          '51%, 100%': { opacity: '0' },
+        },
+        type: {
+          '0%': { width: '0' },
+          '100%': { width: '100%' },
+        },
       },
     },
   },
   plugins: [],
-} 
+}
