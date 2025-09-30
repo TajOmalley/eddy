@@ -1,11 +1,12 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
+import ClientLayout from '@/components/ClientLayout'
 
-const inter = Inter({ subsets: ['latin'], display: 'swap' })
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'LearnCanvas - What do you want to learn?',
-  description: 'Learn through hands-on projects with AI guidance',
+  title: 'pickleglass - AI Assistant',
+  description: 'Personalized AI Assistant for various contexts',
 }
 
 export default function RootLayout({
@@ -15,7 +16,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
+      </body>
     </html>
   )
-}
+} 
