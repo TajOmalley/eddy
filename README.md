@@ -6,6 +6,7 @@ A modern, hands-on learning platform that creates personalized projects for begi
 
 - **Canvas-style Interface**: Clean, distraction-free learning environment
 - **AI-Powered Project Generation**: Creates step-by-step projects using OpenAI
+- **Real-time Content Search**: Uses Tavily to find verified learning resources
 - **Modern Tech Stack**: Built with Next.js 14, TypeScript, and Tailwind CSS
 - **Responsive Design**: Works on desktop and mobile devices
 
@@ -15,6 +16,7 @@ A modern, hands-on learning platform that creates personalized projects for begi
 
 - Node.js 18+ 
 - OpenAI API key
+- Tavily API key
 
 ### Installation
 
@@ -48,38 +50,36 @@ A modern, hands-on learning platform that creates personalized projects for begi
 
 ## How It Works
 
-1. **User Input**: Students answer "What do you want to learn?"
-2. **AI Processing**: The input is sent to OpenAI with a system prompt for project creation
-3. **Project Generation**: AI creates a step-by-step project with free resources
-4. **Canvas Display**: The project is displayed directly on the canvas interface
+### Learning Structure
+Each learning project follows a structured approach:
 
-## Tech Stack
+1. **Exposure**: Key concepts and information from verified sources
+2. **Exercise**: Hands-on project with methodical step-by-step instructions
+3. **Next Challenge**: Independent task to reinforce learning
 
-- **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: Tailwind CSS, Framer Motion
-- **AI Integration**: OpenAI GPT-4
-- **Deployment**: Vercel (recommended)
+### AI Integration
+- **OpenAI**: Generates structured learning projects
+- **Tavily**: Finds real, verified learning resources and content
+- **Content-based**: Presents actual information instead of potentially broken links
 
-## Development
+## Deployment
 
-```bash
-# Development server
-npm run dev
+### GitHub Actions
+The project includes a GitHub Actions workflow for automated builds and deployments.
 
-# Build for production
-npm run build
-
-# Start production server
-npm start
-
-# Lint code
-npm run lint
-```
-
-## Environment Variables
-
-- `OPENAI_API_KEY`: Your OpenAI API key for project generation
+### Environment Variables for CI/CD
+Add these secrets to your GitHub repository:
+- `OPENAI_API_KEY`: Your OpenAI API key
+- `TAVILY_API_KEY`: Your Tavily API key
 
 ## Contributing
 
-This is a prototype for an educational learning platform. The interface is designed to be clean, modern, and focused on hands-on learning through AI-generated projects.
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit your changes: `git commit -m 'Add feature'`
+4. Push to the branch: `git push origin feature-name`
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.

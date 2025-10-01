@@ -58,13 +58,13 @@ function createElectronStorePersistence(storeName = 'firebase-auth-session') {
 }
 
 const firebaseConfig = {
-    apiKey: 'AIzaSyAgtJrmsFWG1C7m9S55HyT1laICEzuUS2g',
-    authDomain: 'pickle-3651a.firebaseapp.com',
-    projectId: 'pickle-3651a',
-    storageBucket: 'pickle-3651a.firebasestorage.app',
-    messagingSenderId: '904706892885',
-    appId: '1:904706892885:web:0e42b3dda796674ead20dc',
-    measurementId: 'G-SQ0WM6S28T',
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID,
 };
 
 let firebaseApp = null;
@@ -76,6 +76,23 @@ function initializeFirebase() {
         console.log('[FirebaseClient] Firebase already initialized.');
         return;
     }
+    
+    // Validate that all required environment variables are present
+    const requiredEnvVars = [
+        'FIREBASE_API_KEY',
+        'FIREBASE_AUTH_DOMAIN', 
+        'FIREBASE_PROJECT_ID',
+        'FIREBASE_STORAGE_BUCKET',
+        'FIREBASE_MESSAGING_SENDER_ID',
+        'FIREBASE_APP_ID'
+    ];
+    
+    const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+    if (missingVars.length > 0) {
+        console.error('[FirebaseClient] Missing required environment variables:', missingVars);
+        throw new Error(`Missing Firebase environment variables: ${missingVars.join(', ')}`);
+    }
+    
     try {
         firebaseApp = initializeApp(firebaseConfig);
         
