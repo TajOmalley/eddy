@@ -3,7 +3,7 @@ import OpenAI from 'openai'
 import { TavilyService } from '../../../lib/tavily'
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || 'dummy-key-for-build',
 })
 
 const systemPrompt = `You are an educational project creator for LearnCanvas, a hands-on learning platform. Your role is to create structured learning experiences with two phases: Exposure and Exercise.
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Topic is required' }, { status: 400 })
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'dummy-key-for-build') {
       return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 })
     }
 
