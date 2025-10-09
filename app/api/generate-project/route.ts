@@ -111,8 +111,11 @@ export async function POST(request: NextRequest) {
       resourcesText = '\n\nNote: Please suggest where users can find learning resources and free tools instead of providing specific URLs.'
     }
 
+    const model = "gpt-4"
+    console.log(`[Web App] 🎯 OpenAI Model: ${model}`)
+    
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: model,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: `Create a beginner-friendly project for learning: ${topic}${resourcesText}` }

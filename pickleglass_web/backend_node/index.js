@@ -31,6 +31,7 @@ function createApp(eventBridge) {
     app.use('/api/user', require('./routes/user'));
     app.use('/api/conversations', require('./routes/conversations'));
     app.use('/api/presets', require('./routes/presets'));
+    app.use('/api', require('./routes/launch')); // Add launch routes
 
     app.get('/api/sync/status', (req, res) => {
         res.json({
@@ -49,12 +50,12 @@ function createApp(eventBridge) {
         });
     });
 
-    app.get('/api/desktop/status', (req, res) => {
-        res.json({
-            connected: true,
-            current_user: null,
-            communication_method: "IPC",
-            file_based_deprecated: true
+    // Error handling middleware
+    app.use((err, req, res, next) => {
+        console.error('API Error:', err);
+        res.status(500).json({
+            error: 'Internal server error',
+            message: err.message
         });
     });
 

@@ -353,6 +353,25 @@ class ModelStateService extends EventEmitter {
     }
 
     async getCurrentModelInfo(type) {
+        // Hardcoded model configuration for learning overlay
+        if (type === 'llm') {
+            const openaiModel = process.env.OPENAI_MODEL || 'gpt-4.1';
+            const openaiApiKey = process.env.OPENAI_API_KEY;
+            
+            if (!openaiApiKey) {
+                console.warn('[ModelStateService] OPENAI_API_KEY not found in environment variables');
+                return null;
+            }
+            
+            console.log(`[ModelStateService] Using hardcoded OpenAI model: ${openaiModel}`);
+            return {
+                provider: 'openai',
+                model: openaiModel,
+                apiKey: openaiApiKey,
+            };
+        }
+        
+        // For STT, use the original logic
         const activeSetting = await providerSettingsRepository.getActiveProvider(type);
         if (!activeSetting) return null;
         

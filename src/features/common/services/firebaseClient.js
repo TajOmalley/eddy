@@ -57,16 +57,6 @@ function createElectronStorePersistence(storeName = 'firebase-auth-session') {
     };
 }
 
-const firebaseConfig = {
-    apiKey: process.env.FIREBASE_API_KEY,
-    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.FIREBASE_APP_ID,
-    measurementId: process.env.FIREBASE_MEASUREMENT_ID,
-};
-
 let firebaseApp = null;
 let firebaseAuth = null;
 let firestoreInstance = null; // To hold the specific DB instance
@@ -79,12 +69,12 @@ function initializeFirebase() {
     
     // Validate that all required environment variables are present
     const requiredEnvVars = [
-        'FIREBASE_API_KEY',
-        'FIREBASE_AUTH_DOMAIN', 
-        'FIREBASE_PROJECT_ID',
-        'FIREBASE_STORAGE_BUCKET',
-        'FIREBASE_MESSAGING_SENDER_ID',
-        'FIREBASE_APP_ID'
+        'NEXT_PUBLIC_FIREBASE_API_KEY',
+        'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', 
+        'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
+        'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
+        'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
+        'NEXT_PUBLIC_FIREBASE_APP_ID'
     ];
     
     const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
@@ -92,6 +82,17 @@ function initializeFirebase() {
         console.error('[FirebaseClient] Missing required environment variables:', missingVars);
         throw new Error(`Missing Firebase environment variables: ${missingVars.join(', ')}`);
     }
+    
+    // Create Firebase config inside the function after env vars are loaded
+    const firebaseConfig = {
+        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+        messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+        appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+        measurementId: process.env.FIREBASE_MEASUREMENT_ID,
+    };
     
     try {
         firebaseApp = initializeApp(firebaseConfig);
@@ -105,11 +106,11 @@ function initializeFirebase() {
             persistence: [ElectronStorePersistence],
         });
 
-        // Initialize Firestore with the specific database ID
-        firestoreInstance = getFirestore(firebaseApp, 'pickle-glass');
+        // Initialize Firestore with the default database (same as web app)
+        firestoreInstance = getFirestore(firebaseApp);
 
         console.log('[FirebaseClient] Firebase initialized successfully with class-based electron-store persistence.');
-        console.log('[FirebaseClient] Firestore instance is targeting the "pickle-glass" database.');
+        console.log('[FirebaseClient] Firestore instance is targeting the default database.');
     } catch (error) {
         console.error('[FirebaseClient] Firebase initialization failed:', error);
     }

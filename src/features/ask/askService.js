@@ -3,6 +3,8 @@ const { createStreamingLLM } = require('../common/ai/factory');
 // Lazy require helper to avoid circular dependency issues
 const getWindowManager = () => require('../../window/windowManager');
 const internalBridge = require('../../bridge/internalBridge');
+const { projectService } = require('../project/projectService');
+const { contextService } = require('../context/contextService');
 
 const getWindowPool = () => {
     try {
@@ -248,6 +250,7 @@ class AskService {
                 throw new Error('AI model or API key not configured.');
             }
             console.log(`[AskService] Using model: ${modelInfo.model} for provider: ${modelInfo.provider}`);
+            console.log(`[AskService] 🎯 OpenAI Model: ${modelInfo.model}`);
 
             const screenshotResult = await captureScreenshot({ quality: 'medium' });
             const screenshotBase64 = screenshotResult.success ? screenshotResult.base64 : null;
@@ -441,6 +444,76 @@ class AskService {
             errorMessage.includes('invalid') ||
             errorMessage.includes('not supported')
         );
+    }
+
+    /**
+     * Ask AI with learning context
+     */
+    async askAI(prompt, options = {}) {
+        try {
+            const { context = 'general', maxTokens = 500, temperature = 0.7 } = options;
+            
+            // Get current project context if available
+            const projectContext = projectService.activeProject ? {
+                currentStep: projectService.getCurrentStep(),
+                progress: projectService.getProgress(),
+                projectSummary: projectService.getProjectSummary()
+            } : null;
+            
+            // Get screen context if available
+            const screenContext = contextService.getCurrentScreenContext();
+            
+            // Build enhanced prompt with context
+            const enhancedPrompt = this.buildContextualPrompt(prompt, {
+                projectContext,
+                screenContext,
+                context
+            });
+            
+            // Use existing AI factory
+            const llm = createStreamingLLM();
+            const response = await llm.generate(enhancedPrompt, {
+                maxTokens,
+                temperature
+            });
+            
+            return response;
+        } catch (error) {
+            console.error('[AskService] Error in askAI:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Build contextual prompt with project and screen context
+     */
+    buildContextualPrompt(userPrompt, context) {
+        const { projectContext, screenContext, context: promptContext } = context;
+        
+        let contextualPrompt = userPrompt;
+        
+        // Add project context if available
+        if (projectContext) {
+            contextualPrompt += `\n\nCURRENT PROJECT CONTEXT:
+- Current Step: ${projectContext.currentStep?.title || 'None'}
+- Progress: ${projectContext.progress}%
+- Project Summary: ${JSON.stringify(projectContext.projectSummary, null, 2)}`;
+        }
+        
+        // Add screen context if available
+        if (screenContext) {
+            contextualPrompt += `\n\nCURRENT SCREEN CONTEXT:
+- Application: ${screenContext.analysis?.applicationContext?.name || 'Unknown'}
+- User Activity: ${screenContext.analysis?.userActivity?.activity || 'Unknown'}
+- Detected Elements: ${JSON.stringify(screenContext.analysis?.detectedElements || [], null, 2)}`;
+        }
+        
+        // Add context-specific instructions
+        if (promptContext === 'learning_guidance') {
+            contextualPrompt += `\n\nINSTRUCTIONS: Provide specific, actionable guidance for the user's current learning situation. Be helpful and encouraging.`;
+        }
+        
+        return contextualPrompt;
     }
 
 }

@@ -49,7 +49,6 @@ class ListenService {
     }
 
     initialize() {
-        this.setupIpcHandlers();
         console.log('[ListenService] Initialized and ready.');
     }
 
