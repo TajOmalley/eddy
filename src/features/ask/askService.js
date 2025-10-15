@@ -4,7 +4,7 @@ const { createStreamingLLM } = require('../common/ai/factory');
 const getWindowManager = () => require('../../window/windowManager');
 const internalBridge = require('../../bridge/internalBridge');
 const { projectService } = require('../project/projectService');
-const { contextService } = require('../context/contextService');
+const contextService = require('../context/contextService');
 
 const getWindowPool = () => {
     try {
@@ -38,6 +38,8 @@ try {
 let lastScreenshot = null;
 
 async function captureScreenshot(options = {}) {
+    console.log(`[AskService] 📸 Capturing screenshot on ${process.platform}...`);
+    
     if (process.platform === 'darwin') {
         try {
             const tempPath = path.join(os.tmpdir(), `screenshot-${Date.now()}.jpg`);
@@ -89,7 +91,10 @@ async function captureScreenshot(options = {}) {
         }
     }
 
+    // Windows and Linux implementation
     try {
+        console.log('[AskService] Using desktopCapturer for Windows/Linux...');
+        
         const sources = await desktopCapturer.getSources({
             types: ['screen'],
             thumbnailSize: {
@@ -99,12 +104,25 @@ async function captureScreenshot(options = {}) {
         });
 
         if (sources.length === 0) {
+            console.error('[AskService] No screen sources available');
             throw new Error('No screen sources available');
         }
+        
         const source = sources[0];
+        console.log(`[AskService] Found screen source: ${source.name}`);
+        
         const buffer = source.thumbnail.toJPEG(70);
         const base64 = buffer.toString('base64');
         const size = source.thumbnail.getSize();
+
+        console.log(`[AskService] Screenshot captured: ${size.width}x${size.height}, ${base64.length} chars base64`);
+
+        lastScreenshot = {
+            base64,
+            width: size.width,
+            height: size.height,
+            timestamp: Date.now(),
+        };
 
         return {
             success: true,
@@ -113,7 +131,7 @@ async function captureScreenshot(options = {}) {
             height: size.height,
         };
     } catch (error) {
-        console.error('Failed to capture screenshot using desktopCapturer:', error);
+        console.error('[AskService] Failed to capture screenshot using desktopCapturer:', error);
         return {
             success: false,
             error: error.message,
@@ -453,15 +471,18 @@ class AskService {
         try {
             const { context = 'general', maxTokens = 500, temperature = 0.7 } = options;
             
+            console.log(`[AskService] 🤖 askAI called with context: ${context}`);
+            
             // Get current project context if available
-            const projectContext = projectService.activeProject ? {
+            const projectContext = projectService && projectService.activeProject ? {
                 currentStep: projectService.getCurrentStep(),
                 progress: projectService.getProgress(),
                 projectSummary: projectService.getProjectSummary()
             } : null;
             
             // Get screen context if available
-            const screenContext = contextService.getCurrentScreenContext();
+            const screenContext = await contextService.getCurrentScreenContext();
+            console.log(`[AskService] Screen context available: ${!!screenContext}`);
             
             // Build enhanced prompt with context
             const enhancedPrompt = this.buildContextualPrompt(prompt, {
@@ -470,14 +491,72 @@ class AskService {
                 context
             });
             
-            // Use existing AI factory
-            const llm = createStreamingLLM();
-            const response = await llm.generate(enhancedPrompt, {
-                maxTokens,
-                temperature
+            // Get model configuration
+            const modelInfo = await modelStateService.getCurrentModelInfo('llm');
+            if (!modelInfo || !modelInfo.apiKey) {
+                throw new Error('AI model or API key not configured.');
+            }
+            
+            console.log(`[AskService] 🎯 OpenAI Model: ${modelInfo.model}`);
+            
+            // Create streaming LLM with proper configuration
+            const streamingLLM = createStreamingLLM(modelInfo.provider, {
+                apiKey: modelInfo.apiKey,
+                model: modelInfo.model,
+                temperature: temperature,
+                maxTokens: maxTokens,
+                usePortkey: modelInfo.provider === 'openai-glass',
+                portkeyVirtualKey: modelInfo.provider === 'openai-glass' ? modelInfo.apiKey : undefined,
             });
             
-            return response;
+            // Create messages array for the AI
+            const messages = [
+                { role: 'system', content: getSystemPrompt('pickle_glass_analysis', '', false) },
+                { role: 'user', content: enhancedPrompt }
+            ];
+            
+            // Get AI response using streaming
+            let fullResponse = '';
+            
+            try {
+                const response = await streamingLLM.streamChat(messages);
+                
+                // Parse the streaming response (Server-Sent Events format)
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6);
+                            if (data === '[DONE]') continue;
+                            
+                            try {
+                                const parsed = JSON.parse(data);
+                                const content = parsed.choices?.[0]?.delta?.content || '';
+                                if (content) {
+                                    fullResponse += content;
+                                }
+                            } catch (e) {
+                                // Skip invalid JSON
+                            }
+                        }
+                    }
+                }
+                
+                console.log('[AskService] Full AI response:', fullResponse);
+            } catch (streamError) {
+                console.error('[AskService] Error streaming response:', streamError);
+            }
+            
+            return fullResponse || "AI guidance generated successfully";
+            
         } catch (error) {
             console.error('[AskService] Error in askAI:', error);
             throw error;
@@ -521,3 +600,4 @@ class AskService {
 const askService = new AskService();
 
 module.exports = askService;
+module.exports.captureScreenshot = captureScreenshot;

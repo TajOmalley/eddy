@@ -222,6 +222,19 @@ function setupIpcHandlers() {
         console.log('✅ Learning session ended');
     });
 
+    ipcMain.on('resize-overlay', (event, { height }) => {
+        console.log('[Main] Resize overlay requested:', height);
+        if (learningOverlayManager && learningOverlayManager.overlayWindow) {
+            const currentBounds = learningOverlayManager.overlayWindow.getBounds();
+            learningOverlayManager.overlayWindow.setBounds({
+                x: currentBounds.x,
+                y: currentBounds.y,
+                width: currentBounds.width,
+                height: height
+            });
+        }
+    });
+
     // Handle get project data request
     ipcMain.on('get-project-data', async (event) => {
         try {

@@ -63,9 +63,16 @@ class LearningOverlayManager {
             return;
         }
 
+        // Get screen dimensions
+        const { screen } = require('electron');
+        const primaryDisplay = screen.getPrimaryDisplay();
+        const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+
         this.overlayWindow = new BrowserWindow({
-            width: 1200,
-            height: 800,
+            width: Math.min(screenWidth * 0.9, 1200),
+            height: 100,
+            x: Math.round((screenWidth - Math.min(screenWidth * 0.9, 1200)) / 2),
+            y: 20,
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: false,
@@ -74,12 +81,17 @@ class LearningOverlayManager {
             frame: false,
             alwaysOnTop: true,
             resizable: true,
+            minWidth: 400,
+            minHeight: 60,
+            maxHeight: 200,
             minimizable: false,
             maximizable: false,
             skipTaskbar: true,
             show: false,
-            transparent: false,
-            backgroundColor: '#000000'
+            transparent: true,
+            backgroundColor: '#00000000',
+            hasShadow: false,
+            thickFrame: false
         });
 
         // Load the overlay HTML
@@ -119,10 +131,52 @@ class LearningOverlayManager {
         });
 
         // Handle guidance request
-        ipcMain.on('request-guidance', (event, data) => {
+        ipcMain.on('request-guidance', async (event, data) => {
             console.log('[LearningOverlay] Guidance requested:', data);
-            this.handleGuidanceRequest(data);
+            await this.handleGuidanceRequest(event, data);
         });
+    }
+
+    /**
+     * Handle guidance request from overlay
+     */
+    async handleGuidanceRequest(event, data) {
+        try {
+            console.log('[LearningOverlay] Processing guidance request for step:', data.stepIndex);
+            
+            // Get current step
+            const currentStep = this.currentProject?.steps?.[data.stepIndex];
+            if (!currentStep) {
+                throw new Error('No current step available');
+            }
+
+            // Get screen context
+            const screenContext = await contextService.getCurrentScreenContext();
+            console.log('[LearningOverlay] Screen context captured:', !!screenContext);
+
+            // Generate contextual guidance
+            const guidance = await this.generateContextualGuidance(currentStep, screenContext);
+            console.log('[LearningOverlay] Guidance generated:', !!guidance);
+
+            // Send guidance back to overlay
+            if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+                this.overlayWindow.webContents.send('guidance-updated', guidance);
+            }
+
+        } catch (error) {
+            console.error('[LearningOverlay] Error handling guidance request:', error);
+            
+            // Send error guidance to overlay
+            const errorGuidance = {
+                activity: 'Unknown',
+                advice: 'Unable to analyze current activity. Please try again.',
+                tips: 'Make sure you have a stable internet connection.'
+            };
+            
+            if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+                this.overlayWindow.webContents.send('guidance-updated', errorGuidance);
+            }
+        }
     }
 
     /**
@@ -179,9 +233,13 @@ class LearningOverlayManager {
                 includeScreenContext: true
             });
 
+            // Clean up the response
+            const cleanResponse = response.trim();
+            console.log('[LearningOverlay] AI guidance response:', cleanResponse);
+            
             return {
                 activity: this.extractActivity(screenContext),
-                advice: response || 'Analyzing your current activity...',
+                advice: cleanResponse || 'Analyzing your current activity...',
                 tips: this.generateTips(step, screenContext)
             };
 
@@ -199,17 +257,30 @@ class LearningOverlayManager {
      * Build guidance prompt for AI
      */
     buildGuidancePrompt(step, screenContext) {
-        return `You are a learning assistant helping a user with this step:
+        const stepTitle = step.title || '';
+        const stepContent = step.content || step.description || '';
+        
+        return `You are a learning assistant. Analyze the user's current screen and determine if they have completed this step:
 
-STEP: ${step.title}
-CONTENT: ${step.content}
+CURRENT STEP: ${stepTitle}
+STEP DETAILS: ${stepContent}
 
-CURRENT SCREEN CONTEXT:
-- Application: ${screenContext?.analysis?.applicationContext?.name || 'Unknown'}
-- Activity: ${screenContext?.analysis?.userActivity?.activity || 'Unknown'}
-- Elements: ${JSON.stringify(screenContext?.analysis?.detectedElements || [], null, 2)}
+USER'S CURRENT SCREEN:
+${screenContext?.screenshot ? '[Screenshot captured]' : '[No screenshot]'}
 
-Provide specific, actionable guidance for this learning step. Be encouraging and helpful. Focus on what the user should do next based on their current screen context.`;
+YOUR TASK:
+1. Analyze if the user's screen shows they have completed this step
+2. If YES: Respond with EXACTLY: "Great! Move to the next step."
+3. If NO: Provide ONE clear, specific instruction (max 15 words) telling them exactly what to do next
+
+RULES:
+- Be direct and concise
+- Give ONE specific action, not multiple
+- Use imperative voice (e.g., "Click the...", "Open...", "Navigate to...")
+- NO pleasantries or explanations
+- If the step says "Open [URL]" and they haven't, say: "Open [URL] in your browser"
+
+Response (ONE LINE ONLY):`;
     }
 
     /**
@@ -230,12 +301,15 @@ Provide specific, actionable guidance for this learning step. Be encouraging and
     generateTips(step, screenContext) {
         const tips = [];
         
-        if (step.content.includes('code') || step.content.includes('programming')) {
+        // Check if step has content and it's a string
+        const stepContent = step.content || step.description || step.title || '';
+        
+        if (stepContent.includes('code') || stepContent.includes('programming')) {
             tips.push('Make sure your code editor is open');
             tips.push('Check for any syntax errors');
         }
         
-        if (step.content.includes('design') || step.content.includes('UI')) {
+        if (stepContent.includes('design') || stepContent.includes('UI')) {
             tips.push('Keep your design tools open');
             tips.push('Reference the design requirements');
         }

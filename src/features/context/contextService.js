@@ -90,32 +90,63 @@ class ContextService {
    */
   async captureScreenData() {
     try {
-      // Check if listenService has captureScreen method
-      if (!listenService || typeof listenService.captureScreen !== 'function') {
-        console.warn('[ContextService] Screen capture not available, using mock data');
+      console.log('[ContextService] 📸 Capturing screen data...');
+      
+      // Try to use the askService screenshot functionality
+      const { captureScreenshot } = require('../ask/askService');
+      
+      if (typeof captureScreenshot === 'function') {
+        console.log('[ContextService] Using askService screenshot capture');
+        const screenshotResult = await captureScreenshot({ quality: 'medium' });
+        
+        if (screenshotResult.success) {
+          console.log(`[ContextService] ✅ Screenshot captured successfully: ${screenshotResult.width}x${screenshotResult.height}`);
+          return {
+            image: screenshotResult.base64,
+            timestamp: new Date(),
+            metadata: {
+              resolution: { 
+                width: screenshotResult.width || 1920, 
+                height: screenshotResult.height || 1080 
+              },
+              format: 'base64'
+            }
+          };
+        } else {
+          console.error('[ContextService] ❌ Screenshot capture failed:', screenshotResult.error);
+        }
+      } else {
+        console.warn('[ContextService] captureScreenshot function not available');
+      }
+      
+      // Fallback: Check if listenService has captureScreen method
+      if (listenService && typeof listenService.captureScreen === 'function') {
+        console.log('[ContextService] Using listenService screen capture');
+        const screenCapture = await listenService.captureScreen();
+        
         return {
-          image: null,
+          image: screenCapture.image,
           timestamp: new Date(),
           metadata: {
-            resolution: { width: 1920, height: 1080 },
-            format: 'mock'
+            resolution: screenCapture.resolution,
+            format: screenCapture.format
           }
         };
       }
 
-      // Use existing screen capture capabilities
-      const screenCapture = await listenService.captureScreen();
-      
+      // Final fallback: mock data
+      console.warn('[ContextService] ⚠️ Screen capture not available, using mock data');
       return {
-        image: screenCapture.image,
+        image: null,
         timestamp: new Date(),
         metadata: {
-          resolution: screenCapture.resolution,
-          format: screenCapture.format
+          resolution: { width: 1920, height: 1080 },
+          format: 'mock'
         }
       };
+      
     } catch (error) {
-      console.error('[ContextService] Error capturing screen data:', error);
+      console.error('[ContextService] ❌ Error capturing screen data:', error);
       return null;
     }
   }
@@ -243,8 +274,20 @@ class ContextService {
   /**
    * Get current screen context
    */
-  getCurrentScreenContext() {
-    return this.screenAnalysis;
+  async getCurrentScreenContext() {
+    try {
+      // If we don't have recent analysis, capture screen data now
+      if (!this.screenAnalysis || 
+          (Date.now() - this.screenAnalysis.timestamp.getTime()) > 5000) {
+        console.log('[ContextService] Capturing fresh screen context');
+        await this.analyzeCurrentScreen();
+      }
+      
+      return this.screenAnalysis;
+    } catch (error) {
+      console.error('[ContextService] Error getting screen context:', error);
+      return null;
+    }
   }
 
   /**

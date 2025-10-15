@@ -13,8 +13,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
+            background: transparent;
+            color: #ffffff;
             overflow: hidden;
             user-select: none;
         }
@@ -23,172 +23,190 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(50, 50, 50, 0.95));
+            background: rgba(60, 60, 60, 0.95);
             backdrop-filter: blur(10px);
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .project-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #4CAF50;
-        }
-
-        .close-btn {
-            background: rgba(255, 0, 0, 0.2);
-            border: 1px solid rgba(255, 0, 0, 0.5);
-            color: #ff6b6b;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .close-btn:hover {
-            background: rgba(255, 0, 0, 0.3);
-            border-color: #ff6b6b;
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            padding: 20px;
-            gap: 20px;
-        }
-
-        .project-panel {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .step-container {
-            margin-bottom: 20px;
-        }
-
-        .step-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #4CAF50;
-            margin-bottom: 10px;
-        }
-
-        .step-content {
-            font-size: 16px;
-            line-height: 1.6;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 15px;
-        }
-
-        .step-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px 20px;
             border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+            cursor: move;
+            transition: all 0.3s ease;
+            -webkit-app-region: drag;
+            overflow: hidden;
         }
 
-        .btn-primary {
-            background: #4CAF50;
-            color: white;
+        .overlay-container.minimized {
+            width: 140px;
+            height: 45px;
         }
 
-        .btn-primary:hover {
-            background: #45a049;
-        }
-
-        .btn-secondary {
+        .resize-handle {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
             background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: ns-resize;
+            -webkit-app-region: no-drag;
+            border-radius: 0 0 30px 30px;
         }
 
-        .btn-secondary:hover {
+        .resize-handle:hover {
             background: rgba(255, 255, 255, 0.2);
         }
 
-        .guidance-panel {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .guidance-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2196F3;
-            margin-bottom: 15px;
-        }
-
-        .guidance-content {
-            font-size: 16px;
-            line-height: 1.6;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 20px;
-        }
-
-        .progress-bar {
+        .minimized-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #8BC34A);
-            transition: width 0.3s ease;
+            padding: 8px 12px;
         }
 
-        .progress-text {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
-            text-align: center;
+        .status-bar {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 8px 20px;
+            gap: 20px;
         }
+
+        .step-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .step-number {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 8px 16px;
+            border-radius: 25px;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .step-instruction {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            line-height: 1.4;
+        }
+
+        .ai-guidance {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .guidance-text {
+            font-size: 15px;
+            font-weight: 500;
+            color: #e0e7ff;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            font-style: italic;
+        }
+
+
+        .minimize-btn {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            border: none;
+            color: #ffffff;
+            padding: 6px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(74, 222, 128, 0.3);
+            margin-right: 8px;
+            -webkit-app-region: no-drag;
+        }
+
+        .minimize-btn:hover {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(74, 222, 128, 0.4);
+        }
+
+        .close-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            border: none;
+            color: #ffffff;
+            padding: 6px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+            -webkit-app-region: no-drag;
+        }
+
+        .close-btn:hover {
+            background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(255, 107, 107, 0.4);
+        }
+
+        .restore-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            color: #ffffff;
+            padding: 6px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+            margin-right: 8px;
+            -webkit-app-region: no-drag;
+        }
+
+        .restore-btn:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4);
+        }
+
 
         .loading {
             display: flex;
             align-items: center;
-            justify-content: center;
-            height: 200px;
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.7);
+            gap: 8px;
+            color: #ffffff;
         }
 
         .spinner {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top: 2px solid #4CAF50;
+            border-top: 2px solid #60a5fa;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-right: 10px;
         }
 
         @keyframes spin {
@@ -202,39 +220,29 @@
     </style>
 </head>
 <body>
-    <div class="overlay-container">
-        <div class="header">
-            <div class="project-title" id="projectTitle">Loading Project...</div>
-            <button class="close-btn" id="closeBtn">✕ Close</button>
-        </div>
-        
-        <div class="main-content">
-            <div class="project-panel">
-                <div class="step-container">
-                    <div class="step-title" id="stepTitle">Current Step</div>
-                    <div class="step-content" id="stepContent">Loading step content...</div>
-                    <div class="step-actions">
-                        <button class="btn btn-primary" id="nextStepBtn">Next Step</button>
-                        <button class="btn btn-secondary" id="prevStepBtn">Previous</button>
-                    </div>
-                </div>
-                
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-                </div>
-                <div class="progress-text" id="progressText">Step 1 of 5</div>
+    <div class="overlay-container" id="overlayContainer">
+        <div class="status-bar">
+            <div class="step-info">
+                <div class="step-number" id="stepNumber">Step 1 of 7</div>
+                <div class="step-instruction" id="stepInstruction">Loading step content...</div>
             </div>
             
-            <div class="guidance-panel">
-                <div class="guidance-title">AI Guidance</div>
-                <div class="guidance-content" id="guidanceContent">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        Analyzing your screen and providing guidance...
-                    </div>
-                </div>
+            <div class="ai-guidance">
+                <div class="guidance-text" id="guidanceText">Analyzing your screen...</div>
             </div>
+            
+            <button class="minimize-btn" id="minimizeBtn">−</button>
+            <button class="close-btn" id="closeBtn">✕</button>
         </div>
+        
+        <!-- Minimized state -->
+        <div class="minimized-content" id="minimizedContent" style="display: none;">
+            <button class="restore-btn" id="restoreBtn">+</button>
+            <button class="close-btn" id="closeBtnMinimized">✕</button>
+        </div>
+        
+        <!-- Resize handle -->
+        <div class="resize-handle" id="resizeHandle"></div>
     </div>
 
     <script>
@@ -242,6 +250,7 @@
         
         let currentProject = null;
         let currentStep = 0;
+        let isMinimized = false;
         
         // Initialize overlay
         document.addEventListener('DOMContentLoaded', () => {
@@ -260,10 +269,55 @@
                 console.log('[LearningOverlay] Close button clicked');
                 ipcRenderer.send('close-learning-overlay');
             });
+
+            // Minimize button
+            document.getElementById('minimizeBtn').addEventListener('click', () => {
+                console.log('[LearningOverlay] Minimize button clicked');
+                toggleMinimize();
+            });
+
+            // Restore button
+            document.getElementById('restoreBtn').addEventListener('click', () => {
+                console.log('[LearningOverlay] Restore button clicked');
+                toggleMinimize();
+            });
+
+            // Close button (minimized)
+            document.getElementById('closeBtnMinimized').addEventListener('click', () => {
+                console.log('[LearningOverlay] Close button (minimized) clicked');
+                ipcRenderer.send('close-learning-overlay');
+            });
+
+            // Resize handle
+            const resizeHandle = document.getElementById('resizeHandle');
+            let isResizing = false;
+            let startY = 0;
+            let startHeight = 0;
+
+            resizeHandle.addEventListener('mousedown', (e) => {
+                isResizing = true;
+                startY = e.clientY;
+                startHeight = window.innerHeight;
+                document.addEventListener('mousemove', handleResize);
+                document.addEventListener('mouseup', stopResize);
+                e.preventDefault();
+            });
+
+            function handleResize(e) {
+                if (!isResizing) return;
+                const newHeight = startHeight + (e.clientY - startY);
+                const minHeight = 60;
+                const maxHeight = 200;
+                const clampedHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
+                ipcRenderer.send('resize-overlay', { height: clampedHeight });
+            }
+
+            function stopResize() {
+                isResizing = false;
+                document.removeEventListener('mousemove', handleResize);
+                document.removeEventListener('mouseup', stopResize);
+            }
             
-            // Navigation buttons
-            document.getElementById('nextStepBtn').addEventListener('click', nextStep);
-            document.getElementById('prevStepBtn').addEventListener('click', prevStep);
             
             // Listen for project data
             ipcRenderer.on('project-data-loaded', (event, projectData) => {
@@ -284,12 +338,27 @@
             });
         }
         
+        function toggleMinimize() {
+            const container = document.getElementById('overlayContainer');
+            const statusBar = document.querySelector('.status-bar');
+            const minimizedContent = document.getElementById('minimizedContent');
+            
+            isMinimized = !isMinimized;
+            
+            if (isMinimized) {
+                container.classList.add('minimized');
+                statusBar.style.display = 'none';
+                minimizedContent.style.display = 'flex';
+            } else {
+                container.classList.remove('minimized');
+                statusBar.style.display = 'flex';
+                minimizedContent.style.display = 'none';
+            }
+        }
+        
         function loadProject(projectData) {
             currentProject = projectData;
             currentStep = 0;
-            
-            // Update UI
-            document.getElementById('projectTitle').textContent = projectData.title || 'Learning Project';
             
             if (projectData.steps && projectData.steps.length > 0) {
                 updateCurrentStep(projectData.steps[0]);
@@ -298,65 +367,23 @@
         }
         
         function updateCurrentStep(step) {
-            document.getElementById('stepTitle').textContent = step.title || 'Step';
-            document.getElementById('stepContent').textContent = step.content || 'No content available';
+            const stepTitle = step.title || 'Current Step';
+            const stepContent = step.description || step.content || 'Loading step content...';
+            
+            // Update step instruction
+            document.getElementById('stepInstruction').textContent = stepTitle;
         }
         
         function updateProgress() {
             if (!currentProject || !currentProject.steps) return;
             
-            const totalSteps = currentProject.steps.length;
-            const progress = ((currentStep + 1) / totalSteps) * 100;
-            
-            document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `Step ${currentStep + 1} of ${totalSteps}`;
-        }
-        
-        function nextStep() {
-            if (!currentProject || !currentProject.steps) return;
-            
-            if (currentStep < currentProject.steps.length - 1) {
-                currentStep++;
-                updateCurrentStep(currentProject.steps[currentStep]);
-                updateProgress();
-                
-                // Request new guidance for this step
-                requestGuidance();
-            }
-        }
-        
-        function prevStep() {
-            if (currentStep > 0) {
-                currentStep--;
-                updateCurrentStep(currentProject.steps[currentStep]);
-                updateProgress();
-                
-                // Request new guidance for this step
-                requestGuidance();
-            }
-        }
-        
-        function requestGuidance() {
-            // Request AI guidance for current step
-            ipcRenderer.send('request-guidance', {
-                step: currentProject.steps[currentStep],
-                stepIndex: currentStep
-            });
+            document.getElementById('stepNumber').textContent = `Step ${currentStep + 1} of ${currentProject.steps.length}`;
         }
         
         function updateGuidance(guidance) {
-            const guidanceElement = document.getElementById('guidanceContent');
-            guidanceElement.innerHTML = `
-                <div style="margin-bottom: 15px;">
-                    <strong>Current Activity:</strong> ${guidance.activity || 'Analyzing...'}
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <strong>Guidance:</strong> ${guidance.advice || 'Processing...'}
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <strong>Tips:</strong> ${guidance.tips || 'No specific tips available'}
-                </div>
-            `;
+            // Update guidance text
+            const guidanceText = guidance.advice || 'AI guidance available';
+            document.getElementById('guidanceText').textContent = guidanceText;
         }
         
         // Request initial guidance
@@ -365,6 +392,14 @@
                 requestGuidance();
             }
         }, 1000);
+        
+        function requestGuidance() {
+            // Request AI guidance for current step
+            ipcRenderer.send('request-guidance', {
+                step: currentProject.steps[currentStep],
+                stepIndex: currentStep
+            });
+        }
     </script>
 </body>
 </html>
